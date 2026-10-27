@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dead File - Test Toque Táctil</title>
+    <title>Dead File - Estilo Recorte Real</title>
     <style>
         body {
-            background-color: #1a1a1a;
-            color: #ffffff;
+            background-color: #111;
+            color: #fff;
             font-family: monospace;
             text-align: center;
             overflow: hidden;
@@ -17,113 +17,111 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            touch-action: manipulation; /* Evita zooms molestos al tocar rápido */
+            touch-action: manipulation;
         }
 
-        /* El escenario de la oficina */
         #oficina {
             position: relative;
             width: 90vw;
             max-width: 600px;
             height: 350px;
-            background: #2c2c38;
-            border: 4px solid #4a4a5e;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background: #22222c;
+            border: 4px solid #444;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             cursor: pointer;
+            overflow: hidden;
         }
 
-        /* Oliver estilo recorte */
+        /* Oliver como recorte de cartón plano */
         #oliver {
             position: absolute;
             font-size: 50px;
             left: 250px;
             top: 150px;
             user-select: none;
-            transition: transform 0.1s ease;
-            transform: translate(-50%, -50%); /* Centra el origen del movimiento */
+            transform-origin: bottom center; /* Pivota desde los pies como un títere */
         }
 
-        /* Animación tipo South Park al caminar */
-        .caminando {
-            animation: balanceoPapel 0.2s infinite alternate ease-in-out;
+        /* Animación estilo recorte físico: saltitos y tirones de rotación */
+        .recorte-caminando {
+            animation: tironesPapel 0.18s infinite steps(2, start);
         }
 
-        @keyframes balanceoPapel {
-            0% { transform: translate(-50%, -50%) translateY(0px) rotate(-8deg); }
-            100% { transform: translate(-50%, -50%) translateY(-6px) rotate(8deg); }
+        @keyframes tironesPapel {
+            0% { transform: translateY(0px) rotate(-10deg); }
+            50% { transform: translateY(-8px) rotate(0deg); }
+            100% { transform: translateY(0px) rotate(10deg); }
         }
 
         .instrucciones {
             margin-top: 20px;
-            color: #888;
-            font-size: 14px;
+            color: #777;
+            font-size: 13px;
             padding: 0 20px;
         }
     </style>
 </head>
 <body>
 
-    <h2>DEAD FILE // Test Toque Táctil</h2>
+    <h2>DEAD FILE // Test Movimiento "Recorte de Papel"</h2>
     
     <div id="oficina">
         <div id="oliver">👱‍♂️</div>
     </div>
 
     <div class="instrucciones">
-        <b>Toca cualquier parte de la oficina</b> (o haz clic con el mouse) para que Oliver camine hacia allí.
+        Toca o haz clic en la oficina. Observa cómo el monigote se mueve a tirones y pivota desde los pies, exactamente igual a un recorte físico.
     </div>
 
     <script>
         const oficina = document.getElementById('oficina');
         const oliver = document.getElementById('oliver');
 
-        // Posición actual de Oliver
         let posX = 250;
         let posY = 150;
-
-        // Posición a donde quiere llegar
         let destinoX = 250;
         let destinoY = 150;
-        
         let estaCaminando = false;
-        const velocidad = 3; // Velocidad de desplazamiento
+        
+        // Velocidad constante y un poco más directa (estilo marioneta)
+        const velocidad = 4;
 
-        // Detectar toque en celular o clic en PC dentro del área de la oficina
         oficina.addEventListener('pointerdown', (e) => {
             const rect = oficina.getBoundingClientRect();
-            // Calcula la posición exacta del toque dentro de la caja
             destinoX = e.clientX - rect.left;
             destinoY = e.clientY - rect.top;
             estaCaminando = true;
-            oliver.classList.add('caminando');
+            oliver.classList.add('recorte-caminando');
         });
 
         function gameLoop() {
             if (estaCaminando) {
-                // Distancia entre Oliver y el destino
                 let distX = destinoX - posX;
                 let distY = destinoY - posY;
                 let distanciaTotal = Math.sqrt(distX * distX + distY * distY);
 
-                if (distanciaTotal > 2) {
-                    // Moverse paso a paso hacia el objetivo
+                if (distanciaTotal > velocidad) {
+                    // Avance lineal y rígido (sin aceleraciones suaves de computadora)
                     posX += (distX / distanciaTotal) * velocidad;
                     posY += (distY / distanciaTotal) * velocidad;
 
-                    // Voltear el sprite dependiendo de hacia dónde camina
+                    // Voltear de golpe el recorte a la izquierda o derecha
                     if (distX < 0) {
-                        oliver.style.transform = "translate(-50%, -50%) scaleX(-1)";
+                        oliver.style.transform = "scaleX(-1)";
                     } else {
-                        oliver.style.transform = "translate(-50%, -50%) scaleX(1)";
+                        oliver.style.transform = "scaleX(1)";
                     }
                 } else {
-                    // Si ya llegó al destino, se detiene
+                    // Detenerse de golpe al llegar al sitio
+                    posX = destinoX;
+                    posY = destinoY;
                     estaCaminando = false;
-                    oliver.classList.remove('caminando');
+                    oliver.classList.remove('recorte-caminando');
+                    // Reiniciar rotación a cero al parar
+                    oliver.style.transform = "rotate(0deg)";
                 }
 
-                // Aplicar posición en pantalla
                 oliver.style.left = posX + 'px';
                 oliver.style.top = posY + 'px';
             }
@@ -131,7 +129,6 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // Iniciar el bucle
         gameLoop();
     </script>
 
